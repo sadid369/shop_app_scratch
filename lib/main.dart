@@ -35,9 +35,10 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
               primarySwatch: Colors.blue,
             ),
-            home: auth.isAuth
+            home: auth.isAuth!
                 ? ProductOverviewScreen()
                 : FutureBuilder(
+                    future: auth.tryAutoLogin(),
                     builder: (context, snapshot) =>
                         snapshot.connectionState == ConnectionState.waiting
                             ? SplashScreen()
