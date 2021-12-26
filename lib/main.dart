@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:shop_app_scratch/provider/auth.dart';
+import 'package:shop_app_scratch/provider/products.dart';
 import 'package:shop_app_scratch/screen/auth_screen.dart';
 import 'package:shop_app_scratch/screen/cart_screen.dart';
 import 'package:shop_app_scratch/screen/edit_product_screen.dart';
@@ -27,6 +28,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => Auth(),
         ),
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (context) => Products("", "", []),
+          update: (context, auth, previousProducts) =>
+              Products(auth.token, auth.userId, previousProducts!.items),
+        )
       ],
       builder: (context, child) => Consumer<Auth>(
         builder: (context, auth, child) {

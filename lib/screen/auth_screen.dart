@@ -61,6 +61,7 @@ class _AuthCardState extends State<AuthCard> {
   final GlobalKey<FormState> _fromKey = GlobalKey();
   final _passwordController = TextEditingController();
   AuthMode _authMode = AuthMode.SingIn;
+  bool isLoading = false;
   final Map<String, dynamic> _authData = {
     "email": '',
     "password": '',
@@ -69,13 +70,27 @@ class _AuthCardState extends State<AuthCard> {
   Future<void> _saveFrom() async {
     _fromKey.currentState!.validate();
     _fromKey.currentState!.save();
-    if (_authMode == AuthMode.SignUp) {
-      await Provider.of<Auth>(context, listen: false)
-          .signUp(_authData['email'], _authData['password']);
-    } else {
-      await Provider.of<Auth>(context, listen: false)
-          .signIn(_authData['email'], _authData['password']);
-    }
+    try {
+      if (_authMode == AuthMode.SignUp) {
+        setState(() {
+          isLoading = true;
+        });
+        await Provider.of<Auth>(context, listen: false)
+            .signUp(_authData['email'], _authData['password']);
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = true;
+        });
+        await Provider.of<Auth>(context, listen: false)
+            .signIn(_authData['email'], _authData['password']);
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (error) {}
   }
 
   void _switchMode() {
@@ -142,10 +157,14 @@ class _AuthCardState extends State<AuthCard> {
               SizedBox(
                 height: 8,
               ),
-              ElevatedButton(
-                  onPressed: _saveFrom,
-                  child:
-                      Text(_authMode == AuthMode.SingIn ? 'SignIn' : 'SignUp')),
+              isLoading
+                  ? Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ElevatedButton(
+                      onPressed: _saveFrom,
+                      child: Text(
+                          _authMode == AuthMode.SingIn ? 'SignIn' : 'SignUp')),
               TextButton(
                   onPressed: _switchMode,
                   child: Text(_authMode == AuthMode.SingIn

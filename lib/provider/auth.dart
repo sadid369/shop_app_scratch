@@ -19,6 +19,13 @@ class Auth with ChangeNotifier {
     return false;
   }
 
+  String? get userId {
+    if (_userId == null) {
+      return null;
+    }
+    return _userId;
+  }
+
   String? get token {
     if (_token != null &&
         _expiryDate != null &&
