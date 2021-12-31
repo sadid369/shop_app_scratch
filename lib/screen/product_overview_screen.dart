@@ -1,10 +1,18 @@
 // ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
+import 'package:shop_app_scratch/provider/cart.dart';
 import 'package:shop_app_scratch/provider/products.dart';
+import 'package:shop_app_scratch/screen/cart_screen.dart';
 import 'package:shop_app_scratch/screen/edit_product_screen.dart';
+import 'package:shop_app_scratch/screen/product_details_screen.dart';
 import 'package:shop_app_scratch/widget/drawer_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app_scratch/widget/product_grid.dart';
+
+enum IsFav { favorite, all }
+bool isFavorite = false;
+bool init = true;
 
 class ProductOverviewScreen extends StatefulWidget {
   static const routeName = 'ProductOverviewScreen';
@@ -22,61 +30,57 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
 
   @override
   void didChangeDependencies() {
-    Provider.of<Products>(context, listen: false).setAndFetchProduct();
+    if (init) {
+      Provider.of<Products>(context).setAndFetchProduct();
+    }
+    init = false;
     super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
+    print('productOverviewPageBuilder');
+
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed(EditProductScreen.routeName);
-              },
-              icon: Icon(Icons.edit))
-        ],
-      ),
-      drawer: DrawerWidget(),
-      body: FutureBuilder(
-        future:
-            Provider.of<Products>(context, listen: false).setAndFetchProduct(),
-        builder: (context, snapshot) {
-          return snapshot.connectionState == ConnectionState.waiting
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : Consumer<Products>(
-                  builder: (context, products, child) {
-                    return GridView.builder(
-                      itemCount: products.items.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 3 / 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10),
-                      itemBuilder: (ctx, i) => ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: GridTile(
-                          child: Image.network('${products.items[i].imageUrl}'),
-                          footer: GridTileBar(
-                            backgroundColor: Colors.black12,
-                            leading: IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.favorite_border),
-                            ),
-                            trailing: IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.shopping_basket_outlined)),
-                          ),
-                        ),
+        appBar: AppBar(
+          actions: [
+            PopupMenuButton(
+                onSelected: (IsFav isFavoriteEnum) {
+                  if (isFavoriteEnum == IsFav.favorite) {
+                    setState(() {
+                      isFavorite = true;
+                    });
+                  } else {
+                    setState(() {
+                      isFavorite = false;
+                    });
+                  }
+                },
+                itemBuilder: (_) => [
+                      PopupMenuItem(
+                        child: Text('Favorite'),
+                        value: IsFav.favorite,
                       ),
-                    );
-                  },
-                );
-        },
-      ),
-    );
+                      PopupMenuItem(
+                        child: Text('All'),
+                        value: IsFav.all,
+                      )
+                    ]),
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(EditProductScreen.routeName);
+                },
+                icon: Icon(Icons.edit)),
+            IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed(CartScreen.routeName);
+                },
+                icon: Icon(Icons.shop_2_rounded))
+          ],
+        ),
+        drawer: DrawerWidget(),
+        body: ProductGrid(
+          isFavorite: isFavorite,
+        ));
   }
 }

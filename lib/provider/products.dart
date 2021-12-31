@@ -40,6 +40,27 @@ class Products with ChangeNotifier {
     }
   }
 
+  Future<void> userFavorite(String productId, bool isFavorite) async {
+    final url =
+        'https://shop-app-scratch-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorite/$productId.json?auth=$authToken';
+    isFavorite = !isFavorite;
+    try {
+      final response =
+          await http.put(Uri.parse(url), body: json.encode(isFavorite));
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  List<Product> productDetails(String id) {
+    return _items.where((product) => product.id == id).toList();
+  }
+
+  List<Product> get favoriteList {
+    return _items.where((products) => products.isFavorite == true).toList();
+  }
+
   Future<void> setAndFetchProduct() async {
     final url =
         'https://shop-app-scratch-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken';
@@ -47,8 +68,16 @@ class Products with ChangeNotifier {
       List<Product> loadedItem = [];
       final response = await http.get(Uri.parse(url));
       final fetchData = json.decode(response.body) as Map<String, dynamic>;
+      if (fetchData == null) {
+        return;
+      }
+      final favUrl =
+          'https://shop-app-scratch-default-rtdb.asia-southeast1.firebasedatabase.app/userFavorite.json?auth=$authToken';
+      final favResponse = await http.get(Uri.parse(favUrl));
+      final favData = json.decode(favResponse.body);
       fetchData.forEach((productId, productData) {
         loadedItem.add(Product(
+            isFavorite: favData == null ? false : favData[productId] ?? false,
             id: productId,
             price: productData['price'],
             description: productData['description'],
