@@ -68,11 +68,6 @@ class _ProductOverviewScreenState extends State<ProductOverviewScreen> {
                     ]),
             IconButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed(EditProductScreen.routeName);
-                },
-                icon: Icon(Icons.edit)),
-            IconButton(
-                onPressed: () {
                   Navigator.of(context).pushNamed(CartScreen.routeName);
                 },
                 icon: Icon(Icons.shop_2_rounded))

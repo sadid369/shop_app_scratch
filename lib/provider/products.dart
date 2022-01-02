@@ -26,13 +26,13 @@ class Products with ChangeNotifier {
             'imageUrl': product.imageUrl
           }));
       print(json.decode(response.body));
-      // final newProduct = Product(
-      //     id: json.decode(response.body)['name'],
-      //     price: product.price,
-      //     description: product.description,
-      //     imageUrl: product.imageUrl,
-      //     title: product.title);
-      // _items.add(newProduct);
+      final newProduct = Product(
+          id: json.decode(response.body)['name'],
+          price: product.price,
+          description: product.description,
+          imageUrl: product.imageUrl,
+          title: product.title);
+      _items.add(newProduct);
       notifyListeners();
     } catch (error) {
       print(error);
@@ -59,6 +59,27 @@ class Products with ChangeNotifier {
 
   List<Product> get favoriteList {
     return _items.where((products) => products.isFavorite == true).toList();
+  }
+
+  Future<void> updateProducts(String productId, Product newProduct) async {
+    final productIndex = _items.indexWhere((prod) => prod.id == productId);
+    final url =
+        'https://shop-app-scratch-default-rtdb.asia-southeast1.firebasedatabase.app/products/$productId.json?auth=$authToken';
+    await http.patch(
+      Uri.parse(url),
+      body: json.encode({
+        'title': newProduct.title,
+        'price': newProduct.price,
+        'description': newProduct.description,
+        'imageUrl': newProduct.imageUrl
+      }),
+    );
+    _items[productIndex] = newProduct;
+    notifyListeners();
+  }
+
+  Product findById(String? id) {
+    return _items.firstWhere((product) => product.id == id);
   }
 
   Future<void> setAndFetchProduct() async {

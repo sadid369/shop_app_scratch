@@ -18,6 +18,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlFocusedNode = FocusNode();
   final _priceFocusedNode = FocusNode();
   final _descriptionFocusedNode = FocusNode();
+
+  var isLoading = false;
+  var inIt = true;
   @override
   void dispose() {
     _imageUrlFocusedNode.dispose();
@@ -35,18 +38,46 @@ class _EditProductScreenState extends State<EditProductScreen> {
     imageUrl: '',
     title: '',
   );
-  final Map<String, dynamic> initialValue = {
+
+  Map<String, dynamic> initialValue = {
     'title': '',
     'price': '',
     'description': '',
     'imageUrl': '',
   };
+  @override
+  void didChangeDependencies() {
+    if (inIt) {
+      final routeArgument =
+          ModalRoute.of(context)!.settings.arguments as String?;
+      if (routeArgument != null) {
+        _exitingProduct =
+            Provider.of<Products>(context).findById(routeArgument);
+        initialValue = {
+          'title': _exitingProduct.title,
+          'price': _exitingProduct.price,
+          'description': _exitingProduct.description,
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _exitingProduct.imageUrl!;
+        print(initialValue);
+      }
+    }
+    inIt = false;
+    super.didChangeDependencies();
+  }
+
   Future<void> _submit() async {
     _fromKey.currentState!.validate();
     _fromKey.currentState!.save();
     try {
-      await Provider.of<Products>(context, listen: false)
-          .addProduct(_exitingProduct);
+      if (_exitingProduct != null) {
+        await Provider.of<Products>(context, listen: false)
+            .updateProducts(_exitingProduct.id!, _exitingProduct);
+      } else {
+        await Provider.of<Products>(context, listen: false)
+            .addProduct(_exitingProduct);
+      }
     } catch (error) {}
   }
 
@@ -54,6 +85,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(),
       body: Center(
         child: Container(
           width: deviceSize.width * 0.85,
@@ -74,6 +106,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         TextFormField(
+                          initialValue: initialValue['title'],
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) {
                             FocusScope.of(context)
@@ -98,6 +131,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           height: 15,
                         ),
                         TextFormField(
+                          initialValue: initialValue['price'].toString(),
                           keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) {
@@ -124,6 +158,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           height: 15,
                         ),
                         TextFormField(
+                          initialValue: initialValue['description'],
                           onFieldSubmitted: (_) {
                             FocusScope.of(context)
                                 .requestFocus(_imageUrlFocusedNode);

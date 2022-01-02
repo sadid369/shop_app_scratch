@@ -7,14 +7,16 @@ class Cart with ChangeNotifier {
   String? imageUrl;
   String? description;
   double? price;
-  int? itemTotalPeice;
-  Cart(
-      {required this.id,
-      required this.title,
-      required this.imageUrl,
-      required this.description,
-      required this.price,
-      this.itemTotalPeice});
+  double? itemTotalPeice;
+
+  Cart({
+    required this.id,
+    required this.title,
+    required this.imageUrl,
+    required this.description,
+    required this.price,
+    this.itemTotalPeice,
+  });
 }
 
 class Carts with ChangeNotifier {
@@ -53,5 +55,20 @@ class Carts with ChangeNotifier {
 
     // print(_cartItem);
     // notifyListeners();
+  }
+
+  void removeItem(String? id) {
+    final indexNum = _cartItem.indexWhere((cartI) => cartI.id == id);
+    _cartItem.removeAt(indexNum);
+    notifyListeners();
+  }
+
+  double granTotal() {
+    double grandTotal = 0;
+    for (var i = 0; i < cartItem.length; i++) {
+      grandTotal =
+          grandTotal + (cartItem[i].itemTotalPeice! * cartItem[i].price!);
+    }
+    return grandTotal;
   }
 }
