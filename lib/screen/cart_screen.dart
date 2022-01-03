@@ -17,11 +17,21 @@ class CartScreen extends StatelessWidget {
               child: Card(
                 elevation: 8,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text('Total'),
                     Chip(
-                        label:
-                            Text('${Provider.of<Carts>(context).granTotal()}'))
+                      label: Text(
+                        '${Provider.of<Carts>(context).granTotal()}',
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Provider.of<Carts>(context, listen: false)
+                            .cartItemDelete();
+                      },
+                      child: Text('Order Now'),
+                    ),
                   ],
                 ),
               ),

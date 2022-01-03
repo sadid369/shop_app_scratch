@@ -44,7 +44,12 @@ class UserProductScreen extends StatelessWidget {
                             arguments: products.items[i].id);
                       },
                       icon: Icon(Icons.edit)),
-                  IconButton(onPressed: () {}, icon: Icon(Icons.delete))
+                  IconButton(
+                      onPressed: () async {
+                        await Provider.of<Products>(context, listen: false)
+                            .deleteProduct(products.items[i].id);
+                      },
+                      icon: Icon(Icons.delete))
                 ],
               ),
             ),

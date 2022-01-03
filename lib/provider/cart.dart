@@ -66,9 +66,13 @@ class Carts with ChangeNotifier {
   double granTotal() {
     double grandTotal = 0;
     for (var i = 0; i < cartItem.length; i++) {
-      grandTotal =
-          grandTotal + (cartItem[i].itemTotalPeice! * cartItem[i].price!);
+      grandTotal = grandTotal + cartItem[i].price!;
     }
     return grandTotal;
+  }
+
+  void cartItemDelete() {
+    _cartItem = [];
+    notifyListeners();
   }
 }

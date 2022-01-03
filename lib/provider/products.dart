@@ -82,6 +82,23 @@ class Products with ChangeNotifier {
     return _items.firstWhere((product) => product.id == id);
   }
 
+  Future<void> deleteProduct(String? id) async {
+    final url =
+        'https://shop-app-scratch-default-rtdb.asia-southeast1.firebasedatabase.app/products/$id.json?auth=$authToken';
+    final existingProductIndex =
+        _items.indexWhere((products) => products.id == id);
+    Product? _existingProduct = _items[existingProductIndex];
+    _items.removeAt(existingProductIndex);
+    notifyListeners();
+    try {
+      final response = await http.delete(Uri.parse(url));
+      _existingProduct = null;
+    } catch (error) {
+      _items.insert(existingProductIndex, _existingProduct!);
+      notifyListeners();
+    }
+  }
+
   Future<void> setAndFetchProduct() async {
     final url =
         'https://shop-app-scratch-default-rtdb.asia-southeast1.firebasedatabase.app/products.json?auth=$authToken';
