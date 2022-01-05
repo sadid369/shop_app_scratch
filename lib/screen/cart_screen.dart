@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shop_app_scratch/provider/cart.dart';
+import 'package:shop_app_scratch/provider/order.dart';
 
 class CartScreen extends StatelessWidget {
   static const routeName = 'CartScreen';
@@ -26,7 +27,9 @@ class CartScreen extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        await Provider.of<Orders>(context, listen: false)
+                            .addOrder(cartItemData.cartItem);
                         Provider.of<Carts>(context, listen: false)
                             .cartItemDelete();
                       },
